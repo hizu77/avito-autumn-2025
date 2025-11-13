@@ -12,6 +12,7 @@ package response
 //		NotFound=NOT_FOUND,
 //	 	Internal=INTERNAL,
 //		BadRequest=BAD_REQUEST,
+//		InvalidCredentials=INVALID_CREDS
 //
 // )
 type Code string

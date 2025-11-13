@@ -38,3 +38,7 @@ func NewPRExistsError() Error {
 func NewPRMergedError() Error {
 	return NewError(CodePrMerged, "PR is merged")
 }
+
+func NewInvalidCredentialsError() Error {
+	return NewError(CodeInvalidCredentials, "invalid id or password")
+}

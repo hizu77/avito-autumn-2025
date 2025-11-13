@@ -27,6 +27,8 @@ const (
 	CodeInternal Code = "INTERNAL"
 	// CodeBadRequest is a Code of type BadRequest.
 	CodeBadRequest Code = "BAD_REQUEST"
+	// CodeInvalidCredentials is a Code of type InvalidCredentials.
+	CodeInvalidCredentials Code = "INVALID_CREDS"
 )
 
 var ErrInvalidCode = errors.New("not a valid Code")
@@ -44,14 +46,15 @@ func (x Code) IsValid() bool {
 }
 
 var _CodeValue = map[string]Code{
-	"TEAM_EXISTS":  CodeTeamExists,
-	"PR_EXISTS":    CodePrExists,
-	"PR_MERGED":    CodePrMerged,
-	"NOT_ASSIGNED": CodeNotAssigned,
-	"NO_CANDIDATE": CodeNoCandidate,
-	"NOT_FOUND":    CodeNotFound,
-	"INTERNAL":     CodeInternal,
-	"BAD_REQUEST":  CodeBadRequest,
+	"TEAM_EXISTS":   CodeTeamExists,
+	"PR_EXISTS":     CodePrExists,
+	"PR_MERGED":     CodePrMerged,
+	"NOT_ASSIGNED":  CodeNotAssigned,
+	"NO_CANDIDATE":  CodeNoCandidate,
+	"NOT_FOUND":     CodeNotFound,
+	"INTERNAL":      CodeInternal,
+	"BAD_REQUEST":   CodeBadRequest,
+	"INVALID_CREDS": CodeInvalidCredentials,
 }
 
 // ParseCode attempts to convert a string to a Code.
