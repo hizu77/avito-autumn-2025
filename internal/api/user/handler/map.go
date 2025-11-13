@@ -1,0 +1,58 @@
+package users
+
+import (
+	"net/http"
+
+	common_response "github.com/hizu77/avito-autumn-2025/internal/api/common/response"
+	"github.com/hizu77/avito-autumn-2025/internal/api/user/response"
+	"github.com/hizu77/avito-autumn-2025/internal/model"
+	"github.com/hizu77/avito-autumn-2025/pkg/utils/collection"
+	"github.com/pkg/errors"
+)
+
+func mapDomainUserToResponseUser(user model.User) response.User {
+	return response.User{
+		ID:       user.ID,
+		Name:     user.Name,
+		TeamName: user.TeamName,
+		IsActive: user.IsActive,
+	}
+}
+
+func mapDomainUserToResponseSetActive(user model.User) response.SetActive {
+	mappedUser := mapDomainUserToResponseUser(user)
+
+	return response.SetActive{
+		User: mappedUser,
+	}
+}
+
+func mapDomainPullRequestToResponseUserReviewRequest(request model.PullRequest) response.ReviewRequest {
+	return response.ReviewRequest{
+		ID:       request.ID,
+		Name:     request.Name,
+		AuthorID: request.AuthorID,
+		Status:   request.Status,
+	}
+}
+
+func mapDomainPullRequestsToResponseGetUserReviewRequests(
+	userID string,
+	requests []model.PullRequest,
+) response.GetUserReviewRequests {
+	mappedRequests := collection.Map(requests, mapDomainPullRequestToResponseUserReviewRequest)
+
+	return response.GetUserReviewRequests{
+		UserID:   userID,
+		Requests: mappedRequests,
+	}
+}
+
+func mapDomainUserErrorToResponseErrorWithStatusCode(err error) (common_response.Error, int) {
+	switch {
+	case errors.Is(err, model.ErrUserDoesNotExist):
+		return common_response.NewNotFoundError(), http.StatusNotFound
+	default:
+		return common_response.NewInternalServerError(), http.StatusInternalServerError
+	}
+}
