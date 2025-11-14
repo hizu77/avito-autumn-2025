@@ -13,6 +13,9 @@ import (
 
 const (
 	jwtExpiration = time.Hour
+
+	adminIDPayloadKey         = "admin_id"
+	tokenExpirationPayloadKey = "exp"
 )
 
 func (s *Service) LoginAdmin(
@@ -31,15 +34,12 @@ func (s *Service) LoginAdmin(
 		[]byte(password),
 	); err != nil {
 		s.logger.Error("invalid credentials", zap.String("id", id), zap.Error(err))
-		return "", model.ErrInvalidCredentials
+		return "", model.ErrInvalidAdminPassword
 	}
 
-	claims := model.Claims{
-		AdminID: admin.ID,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(jwtExpiration)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-		},
+	claims := jwt.MapClaims{
+		adminIDPayloadKey:         id,
+		tokenExpirationPayloadKey: time.Now().Add(jwtExpiration).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

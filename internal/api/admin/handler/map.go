@@ -9,27 +9,27 @@ import (
 	"github.com/pkg/errors"
 )
 
+func mapTokenToResponseLoginAdmin(token string) response.LoginAdmin {
+	return response.LoginAdmin{
+		Token: token,
+	}
+}
+
+func mapDomainAdminToResponseRegisterAdmin(admin model.Admin) response.RegisterAdmin {
+	return response.RegisterAdmin{
+		ID: admin.ID,
+	}
+}
+
 func mapDomainAdminErrorToResponseErrorWithStatusCode(err error) (common_response.Error, int) {
 	switch {
-	case errors.Is(err, model.ErrInvalidCredentials):
+	case errors.Is(err, model.ErrAdminAlreadyExists):
+		return common_response.NewAdminExistsError(), http.StatusBadRequest
+	case errors.Is(err, model.ErrInvalidAdminPassword):
 		return common_response.NewInvalidCredentialsError(), http.StatusUnauthorized
 	case errors.Is(err, model.ErrAdminDoesNotExist):
 		return common_response.NewInvalidCredentialsError(), http.StatusUnauthorized
 	default:
 		return common_response.NewInternalServerError(), http.StatusInternalServerError
-	}
-}
-
-func mapTokenToResponseToken(token string) response.Token {
-	return response.Token{
-		Value: token,
-	}
-}
-
-func mapTokenToResponseLoginAdmin(token string) response.LoginAdmin {
-	mappedToken := mapTokenToResponseToken(token)
-
-	return response.LoginAdmin{
-		Token: mappedToken,
 	}
 }

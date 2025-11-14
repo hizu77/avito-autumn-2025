@@ -3,9 +3,9 @@ package model
 import "github.com/pkg/errors"
 
 var (
-	ErrAdminAlreadyExists = errors.New("admin already exists")
-	ErrAdminDoesNotExist  = errors.New("admin does not exist")
-	ErrInvalidCredentials = errors.New("invalid credentials")
+	ErrAdminAlreadyExists   = errors.New("admin already exists")
+	ErrAdminDoesNotExist    = errors.New("admin does not exist")
+	ErrInvalidAdminPassword = errors.New("invalid password")
 )
 
 type Admin struct {

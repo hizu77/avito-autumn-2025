@@ -42,3 +42,11 @@ func NewPRMergedError() Error {
 func NewInvalidCredentialsError() Error {
 	return NewError(CodeInvalidCredentials, "invalid id or password")
 }
+
+func NewAdminExistsError() Error {
+	return NewError(CodeAdminExists, "admin already exists")
+}
+
+func NewUnauthorizedError() Error {
+	return NewError(CodeUnauthorized, "invalid token")
+}

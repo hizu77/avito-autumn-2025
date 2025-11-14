@@ -13,6 +13,8 @@ import (
 const (
 	// CodeTeamExists is a Code of type TeamExists.
 	CodeTeamExists Code = "TEAM_EXISTS"
+	// CodeAdminExists is a Code of type AdminExists.
+	CodeAdminExists Code = "ADMIN_EXISTS"
 	// CodePrExists is a Code of type PrExists.
 	CodePrExists Code = "PR_EXISTS"
 	// CodePrMerged is a Code of type PrMerged.
@@ -29,6 +31,8 @@ const (
 	CodeBadRequest Code = "BAD_REQUEST"
 	// CodeInvalidCredentials is a Code of type InvalidCredentials.
 	CodeInvalidCredentials Code = "INVALID_CREDS"
+	// CodeUnauthorized is a Code of type Unauthorized.
+	CodeUnauthorized Code = "UNAUTHORIZED"
 )
 
 var ErrInvalidCode = errors.New("not a valid Code")
@@ -47,6 +51,7 @@ func (x Code) IsValid() bool {
 
 var _CodeValue = map[string]Code{
 	"TEAM_EXISTS":   CodeTeamExists,
+	"ADMIN_EXISTS":  CodeAdminExists,
 	"PR_EXISTS":     CodePrExists,
 	"PR_MERGED":     CodePrMerged,
 	"NOT_ASSIGNED":  CodeNotAssigned,
@@ -55,6 +60,7 @@ var _CodeValue = map[string]Code{
 	"INTERNAL":      CodeInternal,
 	"BAD_REQUEST":   CodeBadRequest,
 	"INVALID_CREDS": CodeInvalidCredentials,
+	"UNAUTHORIZED":  CodeUnauthorized,
 }
 
 // ParseCode attempts to convert a string to a Code.

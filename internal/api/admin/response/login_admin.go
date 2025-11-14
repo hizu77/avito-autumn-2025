@@ -1,5 +1,5 @@
 package response
 
 type LoginAdmin struct {
-	Token Token `json:"token"`
+	Token string `json:"token"`
 }
