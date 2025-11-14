@@ -13,3 +13,21 @@ func Map[T, U any](arr []T, f func(x T) U) []U {
 
 	return result
 }
+
+// Reduce accumulates some value over the passed array.
+// JS analogue: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce
+//
+// Example: Reduce([1, 2, 3, 4], f(accumulator, x) -> accumulator + x, 0) -> 10
+func Reduce[T, U any](
+	arr []T,
+	reducer func(U, T) U,
+	initialValue U,
+) U {
+	accumulator := initialValue
+
+	for _, item := range arr {
+		accumulator = reducer(accumulator, item)
+	}
+
+	return accumulator
+}

@@ -1,8 +1,6 @@
 package bootstrap
 
 import (
-	"context"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/hizu77/avito-autumn-2025/config"
@@ -11,7 +9,6 @@ import (
 	adminservice "github.com/hizu77/avito-autumn-2025/internal/service/admin"
 	adminstorage "github.com/hizu77/avito-autumn-2025/internal/storage/admin/postgres"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pkg/errors"
 )
 
 func InitAdminHandlers(
@@ -24,11 +21,6 @@ func InitAdminHandlers(
 
 	storage := adminstorage.New(pool, app.logger)
 	service := adminservice.New(storage, app.logger, secret)
-	_, err := service.RegisterAdmin(context.Background(), cfg.DefaultID, cfg.DefaultPassword)
-	if err != nil {
-		return errors.Wrap(err, "registering default admin")
-	}
-
 	handler := adminhandler.New(service, app.logger)
 
 	app.mux.Route("/admins", func(r chi.Router) {

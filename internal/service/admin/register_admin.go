@@ -5,7 +5,6 @@ import (
 
 	"github.com/hizu77/avito-autumn-2025/internal/model"
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -16,7 +15,6 @@ func (s *Service) RegisterAdmin(
 ) (model.Admin, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		s.logger.Error("generating hash from password", zap.Error(err))
 		return model.Admin{}, errors.Wrap(err, "generating hash")
 	}
 

@@ -9,7 +9,6 @@ import (
 	"github.com/hizu77/avito-autumn-2025/internal/storage/admin/dbmodel"
 	"github.com/jackc/pgx/v5"
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
 )
 
 func (s *Storage) GetAdmin(ctx context.Context, id string) (model.Admin, error) {
@@ -24,23 +23,19 @@ func (s *Storage) GetAdmin(ctx context.Context, id string) (model.Admin, error) 
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()
 	if err != nil {
-		s.logger.Error("building sql", zap.Error(err))
 		return model.Admin{}, errors.Wrap(err, "building sql")
 	}
 
 	rows, err := s.pool.Query(ctx, sql, args...)
 	if err != nil {
-		s.logger.Error("failed executing sql", zap.Error(err))
 		return model.Admin{}, errors.Wrap(err, "querying rows")
 	}
 
 	dbAdmin, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[dbmodel.Admin])
 	if errors.Is(err, db.ErrNoRows) {
-		s.logger.Error("row not found", zap.Error(err))
 		return model.Admin{}, model.ErrAdminDoesNotExist
 	}
 	if err != nil {
-		s.logger.Error("failed collecting rows", zap.Error(err))
 		return model.Admin{}, errors.Wrap(err, "collecting rows")
 	}
 
