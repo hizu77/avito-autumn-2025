@@ -27,16 +27,16 @@ func (s *Storage) InsertAdmin(ctx context.Context, admin model.Admin) (model.Adm
 	}
 
 	rows, err := s.pool.Query(ctx, sql, args...)
-	if constraint.IsUniqueViolation(err) {
-		s.logger.Error("row already exists", zap.Error(err))
-		return model.Admin{}, model.ErrAdminAlreadyExists
-	}
 	if err != nil {
 		s.logger.Error("failed executing sql", zap.Error(err))
 		return model.Admin{}, errors.Wrap(err, "querying rows")
 	}
 
 	dbAdmin, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[dbmodel.Admin])
+	if constraint.IsUniqueViolation(err) {
+		s.logger.Error("row already exists", zap.Error(err))
+		return model.Admin{}, model.ErrAdminAlreadyExists
+	}
 	if err != nil {
 		s.logger.Error("failed collecting rows", zap.Error(err))
 		return model.Admin{}, errors.Wrap(err, "collecting rows")

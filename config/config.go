@@ -11,7 +11,7 @@ type (
 	Config struct {
 		Postgres `envPrefix:"POSTGRES_"`
 		HTTP     `envPrefix:"HTTP_"`
-		JWT      `envPrefix:"JWT_"`
+		Admin    `envPrefix:"ADMIN_"`
 	}
 
 	Postgres struct {
@@ -23,8 +23,10 @@ type (
 		Port string `env:"PORT"`
 	}
 
-	JWT struct {
-		Secret string `env:"SECRET"`
+	Admin struct {
+		Secret          string `env:"SECRET"`
+		DefaultID       string `env:"DEFAULT_ID"`
+		DefaultPassword string `env:"DEFAULT_PASSWORD"`
 	}
 )
 
