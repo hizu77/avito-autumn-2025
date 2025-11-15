@@ -11,17 +11,22 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (s *Storage) GetTeamByName(ctx context.Context, name string) (model.Team, error) {
+func (s *Storage) GetTeamByUserID(ctx context.Context, userID string) (model.Team, error) {
 	sql, args, err := squirrel.
 		Expr(`
-        	SELECT
-            	t.name 		AS team_name,
-            	u.name   		AS user_id,
-            	u.name      AS user_name,
-            	u.is_active AS user_is_active
-        	FROM teams t
-        	JOIN users u ON t.name = u.team_name
-        	WHERE t.name = $1`, name).
+			WITH target_team AS (
+		    	SELECT team_name
+    			FROM users
+    			WHERE id = $1
+			)
+			SELECT
+				t.team_name  AS team_name,
+    			u.id         AS user_id,
+    			u.name       AS user_name,
+    			u.is_active  AS user_is_active
+			FROM target_team t
+			JOIN users u ON u.team_name = t.team_name
+			ORDER BY u.id`, userID).
 		ToSql()
 	if err != nil {
 		return model.Team{}, errors.Wrap(err, "building sql")
@@ -29,7 +34,7 @@ func (s *Storage) GetTeamByName(ctx context.Context, name string) (model.Team, e
 
 	rows, err := s.getter.DefaultTrOrDB(ctx, s.pool).Query(ctx, sql, args...)
 	if err != nil {
-		return model.Team{}, errors.Wrap(err, "fetching rows")
+		return model.Team{}, errors.Wrap(err, "querying sql")
 	}
 
 	fetched, err := pgx.CollectRows(rows, pgx.RowToStructByName[dbmodel.Row])

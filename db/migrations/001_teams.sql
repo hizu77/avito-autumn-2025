@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE TABLE IF NOT EXISTS teams(
+CREATE TABLE IF NOT EXISTS teams (
     name TEXT PRIMARY KEY
 );
 

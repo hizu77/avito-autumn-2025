@@ -1,4 +1,4 @@
-package admin
+package pullrequest
 
 import (
 	"github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"

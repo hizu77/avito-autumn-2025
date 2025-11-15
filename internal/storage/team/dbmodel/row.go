@@ -1,10 +1,8 @@
 package dbmodel
 
 type Row struct {
-	TName string `json:"t.name"`
-
-	UID       string `json:"u.id"`
-	UName     string `json:"u.name"`
-	UTeamName string `json:"u.team_name"`
-	UIsActive bool   `json:"u.is_active"`
+	TName     string `json:"team_name"`
+	UID       string `json:"user_id"`
+	UName     string `json:"user_name"`
+	UIsActive bool   `json:"user_is_active"`
 }

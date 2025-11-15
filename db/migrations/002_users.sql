@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE TABLE IF NOT EXISTS users(
+CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     team_name TEXT NOT NULL REFERENCES teams(name),

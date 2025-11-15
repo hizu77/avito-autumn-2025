@@ -12,21 +12,17 @@ import (
 )
 
 func (s *Storage) GetAdmin(ctx context.Context, id string) (model.Admin, error) {
-	filters := map[string]any{
-		columnID: id,
-	}
-
 	sql, args, err := squirrel.
 		Select(allColumns...).
 		From(adminTableName).
-		Where(filters).
+		Where(squirrel.Eq{columnID: id}).
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()
 	if err != nil {
 		return model.Admin{}, errors.Wrap(err, "building sql")
 	}
 
-	rows, err := s.pool.Query(ctx, sql, args...)
+	rows, err := s.getter.DefaultTrOrDB(ctx, s.pool).Query(ctx, sql, args...)
 	if err != nil {
 		return model.Admin{}, errors.Wrap(err, "querying rows")
 	}

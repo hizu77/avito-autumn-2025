@@ -50,3 +50,11 @@ func NewAdminExistsError() Error {
 func NewUnauthorizedError() Error {
 	return NewError(CodeUnauthorized, "invalid token")
 }
+
+func NewNotAssignedError() Error {
+	return NewError(CodeNotAssigned, "reviewer not assigned")
+}
+
+func NewNoCandidateError() Error {
+	return NewError(CodeNoCandidate, "no candidate to reassign")
+}

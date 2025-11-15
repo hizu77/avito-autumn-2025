@@ -14,17 +14,13 @@ func (s *Storage) SaveTeam(ctx context.Context, team model.Team) (model.Team, er
 		Insert(teamTableName).
 		Columns(teamColumnName).
 		Values(team.Name).
-		Suffix("RETURNING " + teamColumnName).
 		PlaceholderFormat(squirrel.Dollar).
 		ToSql()
 	if err != nil {
 		return model.Team{}, errors.Wrap(err, "building sql")
 	}
 
-	var savedTeam model.Team
-	err = s.getter.DefaultTrOrDB(ctx, s.pool).
-		QueryRow(ctx, sql, args...).
-		Scan(&savedTeam.Name)
+	_, err = s.getter.DefaultTrOrDB(ctx, s.pool).Exec(ctx, sql, args...)
 	if constraint.IsUniqueViolation(err) {
 		return model.Team{}, model.ErrTeamAlreadyExists
 	}
@@ -32,5 +28,5 @@ func (s *Storage) SaveTeam(ctx context.Context, team model.Team) (model.Team, er
 		return model.Team{}, errors.Wrap(err, "querying sql")
 	}
 
-	return savedTeam, nil
+	return team, nil
 }

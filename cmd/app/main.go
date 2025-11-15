@@ -13,6 +13,8 @@ import (
 // TODO сделать норм логи
 // TODO вынести накат миграцй и создание дефолтного админа в сайдкар
 // TODO чекнуть как можно лучше сделать ErrorResponse
+// TODO чекнуть RETURNING, где он не нужен убрать его
+// TODO транзакции — ответственность сервисов, а не репозиториев
 
 func main() {
 	logger, err := zap.NewProduction()
@@ -48,7 +50,7 @@ func main() {
 
 	app := bootstrap.InitApp(cfg, logger)
 
-	if err := bootstrap.InitAdminHandlers(app, pool, cfg); err != nil {
+	if err := bootstrap.InitHandlers(app, pool, cfg); err != nil {
 		log.Fatal(errors.Wrap(err, "init admin handlers"))
 	}
 

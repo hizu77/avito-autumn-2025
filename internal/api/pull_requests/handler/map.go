@@ -88,6 +88,10 @@ func mapDomainPullRequestErrorToResponseErrorWithStatusCode(err error) (common_r
 		return common_response.NewNotFoundError(), http.StatusNotFound
 	case errors.Is(err, model.ErrUserDoesNotExist):
 		return common_response.NewNotFoundError(), http.StatusNotFound
+	case errors.Is(err, model.ErrReviewerNotAssign):
+		return common_response.NewNotAssignedError(), http.StatusConflict
+	case errors.Is(err, model.ErrNoCandidate):
+		return common_response.NewNoCandidateError(), http.StatusConflict
 	default:
 		return common_response.NewInternalServerError(), http.StatusInternalServerError
 	}

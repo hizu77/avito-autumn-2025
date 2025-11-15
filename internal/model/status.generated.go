@@ -12,39 +12,29 @@ import (
 )
 
 const (
-	// StatusOpen is a Status of type Open.
-	StatusOpen Status = iota
-	// StatusMerged is a Status of type Merged.
-	StatusMerged
+	// StatusOpen is a Status of type open.
+	StatusOpen Status = "open"
+	// StatusMerged is a Status of type merged.
+	StatusMerged Status = "merged"
 )
 
 var ErrInvalidStatus = errors.New("not a valid Status")
 
-const _StatusName = "openmerged"
-
-var _StatusMap = map[Status]string{
-	StatusOpen:   _StatusName[0:4],
-	StatusMerged: _StatusName[4:10],
-}
-
 // String implements the Stringer interface.
 func (x Status) String() string {
-	if str, ok := _StatusMap[x]; ok {
-		return str
-	}
-	return fmt.Sprintf("Status(%d)", x)
+	return string(x)
 }
 
 // IsValid provides a quick way to determine if the typed value is
 // part of the allowed enumerated values
 func (x Status) IsValid() bool {
-	_, ok := _StatusMap[x]
-	return ok
+	_, err := ParseStatus(string(x))
+	return err == nil
 }
 
 var _StatusValue = map[string]Status{
-	_StatusName[0:4]:  StatusOpen,
-	_StatusName[4:10]: StatusMerged,
+	"open":   StatusOpen,
+	"merged": StatusMerged,
 }
 
 // ParseStatus attempts to convert a string to a Status.
@@ -52,5 +42,5 @@ func ParseStatus(name string) (Status, error) {
 	if x, ok := _StatusValue[name]; ok {
 		return x, nil
 	}
-	return Status(0), fmt.Errorf("%s is %w", name, ErrInvalidStatus)
+	return Status(""), fmt.Errorf("%s is %w", name, ErrInvalidStatus)
 }

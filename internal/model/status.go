@@ -3,4 +3,4 @@
 package model
 
 // ENUM(open, merged)
-type Status int32
+type Status string
