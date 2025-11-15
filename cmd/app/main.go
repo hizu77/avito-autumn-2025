@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/hizu77/avito-autumn-2025/config"
-	"github.com/hizu77/avito-autumn-2025/db"
 	"github.com/hizu77/avito-autumn-2025/internal/bootstrap"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -22,9 +21,9 @@ func main() {
 		log.Fatal(errors.Wrap(err, "failed to initialize zap logger"))
 	}
 
-	cfg, err := config.New(logger)
+	cfg, err := config.New()
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "init config"))
+		logger.Fatal("failed to initialize config", zap.Error(err))
 	}
 
 	bootstrap.InitCloser()
@@ -40,21 +39,13 @@ func main() {
 		logger,
 	)
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "init postgres"))
-	}
-
-	err = db.Migrate(pool)
-	if err != nil {
-		log.Fatal(errors.Wrap(err, "migrating"))
+		logger.Fatal("failed to initialize postgres", zap.Error(err))
 	}
 
 	app := bootstrap.InitApp(cfg, logger)
-
-	if err := bootstrap.InitHandlers(app, pool, cfg); err != nil {
-		log.Fatal(errors.Wrap(err, "init admin handlers"))
-	}
+	bootstrap.InitHandlers(app, pool, cfg)
 
 	if err := app.Run(ctx); err != nil {
-		log.Fatal(errors.Wrap(err, "running app"))
+		logger.Fatal("failed to run app", zap.Error(err))
 	}
 }

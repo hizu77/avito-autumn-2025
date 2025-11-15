@@ -54,7 +54,6 @@ func (a *App) Run(ctx context.Context) error {
 	eg.Go(func() error {
 		if err := httpServer.ListenAndServe(); err != nil &&
 			!errors.Is(err, http.ErrServerClosed) {
-			a.logger.Error("http server failed", zap.Error(err))
 			return errors.Wrap(err, "listening http")
 		}
 
@@ -64,7 +63,6 @@ func (a *App) Run(ctx context.Context) error {
 	if err := closer.AddCallback(
 		CloserGroupApp,
 		func() error {
-			a.logger.Info("closing http server")
 			shutdownCtx, cancel := context.WithTimeout(
 				context.Background(),
 				ShutdownTimeout,
@@ -75,23 +73,23 @@ func (a *App) Run(ctx context.Context) error {
 				return errors.Wrap(err, "shutting down http")
 			}
 
+			a.logger.Info("http server shutdown")
+
 			return nil
 		},
 	); err != nil {
-		return errors.Wrap(err, "app callback")
+		return errors.Wrap(err, "add app callback")
 	}
 
 	a.logger.Info("http server started", zap.String("http_addr", a.httpAddr))
 
 	err := eg.Wait()
 	if err != nil {
-		a.logger.Error("running app", zap.Error(err))
 		return errors.Wrap(err, "running app")
 	}
 
 	err = closer.Wait()
 	if err != nil {
-		a.logger.Error("closing app", zap.Error(err))
 		return errors.Wrap(err, "executing callbacks")
 	}
 

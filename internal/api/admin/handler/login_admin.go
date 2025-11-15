@@ -5,26 +5,32 @@ import (
 
 	"github.com/go-chi/render"
 	"github.com/hizu77/avito-autumn-2025/internal/api/admin/request"
-	"github.com/hizu77/avito-autumn-2025/internal/api/common/response"
+	"github.com/hizu77/avito-autumn-2025/internal/api/common"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
 
 func (h *Handler) LoginAdmin(w http.ResponseWriter, r *http.Request) {
+	const op = "admin.LoginAdmin"
+
 	var loginAdminRequest request.LoginAdmin
 	if err := render.DecodeJSON(r.Body, &loginAdminRequest); err != nil {
-		h.logger.Error("decoding request body", zap.Error(err))
+		h.logger.Error("decoding request body",
+			zap.String("op", op),
+			zap.Error(err),
+		)
 
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, response.NewBadRequestError("invalid json body"))
+		common.WriteError(w, r, common.CodeBadRequest, "invalid json body")
 		return
 	}
 
 	if err := validateLoginAdminRequest(loginAdminRequest); err != nil {
-		h.logger.Error("validating request", zap.Error(err))
+		h.logger.Error("validating request",
+			zap.String("op", op),
+			zap.Error(err),
+		)
 
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, response.NewBadRequestError(err.Error()))
+		common.WriteError(w, r, common.CodeBadRequest, err.Error())
 		return
 	}
 
@@ -35,15 +41,18 @@ func (h *Handler) LoginAdmin(w http.ResponseWriter, r *http.Request) {
 		loginAdminRequest.Password,
 	)
 	if err != nil {
-		h.logger.Error("login admin", zap.Error(err))
+		h.logger.Error("login admin",
+			zap.String("op", op),
+			zap.Error(err),
+		)
 
-		mappedErr, code := mapDomainAdminErrorToResponseErrorWithStatusCode(err)
-		render.Status(r, code)
-		render.JSON(w, r, mappedErr)
+		code := mapDomainAdminErrorToCode(err)
+		common.WriteError(w, r, code)
 		return
 	}
 
 	mappedToken := mapTokenToResponseLoginAdmin(token)
+
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, mappedToken)
 }

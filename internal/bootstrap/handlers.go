@@ -26,7 +26,7 @@ func InitHandlers(
 	app *App,
 	pool *pgxpool.Pool,
 	cfg *config.Config,
-) error {
+) {
 	secret := []byte(cfg.Secret)
 	tokenAuth := jwtauth.New("HS256", secret, nil)
 
@@ -81,6 +81,4 @@ func InitHandlers(
 		r.Post("/merge", pullRequestHandler.MergePullRequest)
 		r.Post("/reassign", pullRequestHandler.ReassignPullRequest)
 	})
-
-	return nil
 }

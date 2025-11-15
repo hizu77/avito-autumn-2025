@@ -19,7 +19,6 @@ func InitPostgres(
 		connectionString,
 	)
 	if err != nil {
-		logger.Error("failed to connect to database", zap.Error(err))
 		return nil, errors.Wrap(err, "init postgres")
 	}
 
@@ -31,12 +30,10 @@ func InitPostgres(
 			return nil
 		},
 	); err != nil {
-		logger.Error("failed to close database connection", zap.Error(err))
 		return nil, errors.Wrap(err, "postgres callback")
 	}
 
 	if err := pool.Ping(ctx); err != nil {
-		logger.Error("failed to ping database", zap.Error(err))
 		return nil, errors.Wrap(err, "readiness probe")
 	}
 

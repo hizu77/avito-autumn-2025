@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/render"
-	"github.com/hizu77/avito-autumn-2025/internal/api/common/response"
+	"github.com/hizu77/avito-autumn-2025/internal/api/common"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
@@ -14,24 +14,30 @@ const (
 )
 
 func (h *Handler) GetUserReviewRequests(w http.ResponseWriter, r *http.Request) {
+	const op = "users.GetUserReviewRequests"
+
 	id := r.URL.Query().Get(idQueryParam)
 
 	if err := validateUserID(id); err != nil {
-		h.logger.Error("validate user id", zap.Error(err))
+		h.logger.Error("validate user id",
+			zap.String("op", op),
+			zap.Error(err),
+		)
 
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, response.NewBadRequestError(err.Error()))
+		common.WriteError(w, r, common.CodeBadRequest, err.Error())
 		return
 	}
 
 	ctx := r.Context()
 	requests, err := h.service.GetUserReviewRequests(ctx, id)
 	if err != nil {
-		h.logger.Error("getting user review requests", zap.Error(err))
+		h.logger.Error("getting user review requests",
+			zap.String("op", op),
+			zap.Error(err),
+		)
 
-		mappedErr, code := mapDomainUserErrorToResponseErrorWithStatusCode(err)
-		render.Status(r, code)
-		render.JSON(w, r, mappedErr)
+		code := mapDomainUserErrorToCode(err)
+		common.WriteError(w, r, code)
 		return
 	}
 
@@ -48,6 +54,5 @@ func validateUserID(id string) error {
 	if id == "" {
 		return errors.New("invalid user id")
 	}
-
 	return nil
 }

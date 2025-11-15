@@ -4,7 +4,6 @@ import (
 	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
 )
 
 type (
@@ -30,15 +29,10 @@ type (
 	}
 )
 
-func New(logger *zap.Logger) (*Config, error) {
-	if err := godotenv.Load(); err != nil {
-		logger.Warn(
-			"warning: no .env file, skipping loading",
-		)
-	}
-
+func New() (*Config, error) {
 	cfg := Config{}
 
+	_ = godotenv.Load()
 	if err := env.ParseWithOptions(&cfg, env.Options{
 		RequiredIfNoDef: true,
 	}); err != nil {
