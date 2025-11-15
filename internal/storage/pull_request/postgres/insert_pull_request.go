@@ -2,7 +2,6 @@ package pullrequest
 
 import (
 	"context"
-	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/hizu77/avito-autumn-2025/internal/model"
@@ -14,9 +13,6 @@ func (s *Storage) InsertPullRequest(
 	ctx context.Context,
 	request model.PullRequest,
 ) (model.PullRequest, error) {
-	createdAt := time.Now().UTC()
-	request.CreatedAt = &createdAt
-
 	sql, args, err := squirrel.
 		Expr(`
 			INSERT INTO pull_requests (
@@ -40,7 +36,7 @@ func (s *Storage) InsertPullRequest(
 			request.Name,
 			request.AuthorID,
 			request.Status,
-			createdAt,
+			request.CreatedAt,
 			request.MergedAt,
 		).ToSql()
 	if err != nil {

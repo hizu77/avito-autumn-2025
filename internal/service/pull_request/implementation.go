@@ -15,13 +15,8 @@ type (
 	pullRequestStorage interface {
 		GetPullRequestByID(ctx context.Context, id string) (model.PullRequest, error)
 		InsertPullRequest(ctx context.Context, request model.PullRequest) (model.PullRequest, error)
-		MergePullRequest(ctx context.Context, req model.PullRequest) (model.PullRequest, error)
-		ReassignReviewer(
-			ctx context.Context,
-			req model.PullRequest,
-			oldReviewer string,
-			newReviewer string,
-		) (model.PullRequest, error)
+		UpdatePullRequestInfo(ctx context.Context, req model.PullRequest) (model.PullRequest, error)
+		UpdatePullRequestReviewers(ctx context.Context, req model.PullRequest) (model.PullRequest, error)
 	}
 )
 
