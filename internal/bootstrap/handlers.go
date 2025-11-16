@@ -1,6 +1,8 @@
 package bootstrap
 
 import (
+	"context"
+
 	"github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"github.com/go-chi/chi/v5"
@@ -11,6 +13,7 @@ import (
 	pullrequesthandler "github.com/hizu77/avito-autumn-2025/internal/api/pull_requests/handler"
 	teamhandler "github.com/hizu77/avito-autumn-2025/internal/api/team/handler"
 	userhandler "github.com/hizu77/avito-autumn-2025/internal/api/user/handler"
+	"github.com/hizu77/avito-autumn-2025/internal/model"
 	adminservice "github.com/hizu77/avito-autumn-2025/internal/service/admin"
 	pullrequestservice "github.com/hizu77/avito-autumn-2025/internal/service/pull_request"
 	teamservice "github.com/hizu77/avito-autumn-2025/internal/service/team"
@@ -20,13 +23,15 @@ import (
 	teamstorage "github.com/hizu77/avito-autumn-2025/internal/storage/team/postgres"
 	userstorage "github.com/hizu77/avito-autumn-2025/internal/storage/user/postgres"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/pkg/errors"
 )
 
 func InitHandlers(
+	ctx context.Context,
 	app *App,
 	pool *pgxpool.Pool,
 	cfg *config.Config,
-) {
+) error {
 	secret := []byte(cfg.Secret)
 	tokenAuth := jwtauth.New("HS256", secret, nil)
 
@@ -51,6 +56,15 @@ func InitHandlers(
 	userHandler := userhandler.New(userService, app.logger)
 	teamHandler := teamhandler.New(teamService, app.logger)
 	pullRequestHandler := pullrequesthandler.New(pullRequestService, app.logger)
+
+	if err := ensureDefaultAdmin(
+		ctx,
+		adminService,
+		cfg.Admin.ID,
+		cfg.Admin.Password,
+	); err != nil {
+		return errors.Wrap(err, "failed to ensure default admin")
+	}
 
 	app.mux.Route("/admins", func(r chi.Router) {
 		r.Post("/login", adminHandler.LoginAdmin)
@@ -81,4 +95,19 @@ func InitHandlers(
 		r.Post("/merge", pullRequestHandler.MergePullRequest)
 		r.Post("/reassign", pullRequestHandler.ReassignPullRequest)
 	})
+
+	return nil
+}
+
+func ensureDefaultAdmin(
+	ctx context.Context,
+	service *adminservice.Service,
+	id string,
+	password string,
+) error {
+	_, err := service.RegisterAdmin(ctx, id, password)
+	if errors.Is(err, model.ErrAdminAlreadyExists) {
+		return nil
+	}
+	return errors.Wrap(err, "failed to register admin")
 }

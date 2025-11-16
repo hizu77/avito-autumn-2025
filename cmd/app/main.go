@@ -37,7 +37,10 @@ func main() {
 	}
 
 	app := bootstrap.InitApp(cfg, logger)
-	bootstrap.InitHandlers(app, pool, cfg)
+
+	if err := bootstrap.InitHandlers(ctx, app, pool, cfg); err != nil {
+		logger.Fatal("failed to initialize handler", zap.Error(err))
+	}
 
 	if err := app.Run(ctx); err != nil {
 		logger.Fatal("failed to run app", zap.Error(err))

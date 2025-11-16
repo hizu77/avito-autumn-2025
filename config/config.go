@@ -23,9 +23,9 @@ type (
 	}
 
 	Admin struct {
-		Secret          string `env:"SECRET"`
-		DefaultID       string `env:"DEFAULT_ID"`
-		DefaultPassword string `env:"DEFAULT_PASSWORD"`
+		Secret   string `env:"SECRET"`
+		ID       string `env:"ID"`
+		Password string `env:"PASSWORD"`
 	}
 )
 

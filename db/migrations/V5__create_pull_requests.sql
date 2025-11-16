@@ -1,4 +1,3 @@
--- +goose Up
 CREATE TABLE IF NOT EXISTS pull_requests (
     id         TEXT PRIMARY KEY,
     name       TEXT NOT NULL,
@@ -11,8 +10,3 @@ CREATE TABLE IF NOT EXISTS pull_requests (
 CREATE INDEX IF NOT EXISTS idx_pull_requests_author_id ON pull_requests(author_id);
 
 CREATE INDEX IF NOT EXISTS idx_pull_requests_status_id ON pull_requests(status_id);
-
--- +goose Down
-DROP INDEX IF EXISTS idx_pull_requests_status_id;
-DROP INDEX IF EXISTS idx_pull_requests_author_id;
-DROP TABLE IF EXISTS pull_requests;
