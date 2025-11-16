@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/golang/mock/gomock"
-	"github.com/hizu77/avito-autumn-2025/internal/mock/user"
+	mock "github.com/hizu77/avito-autumn-2025/internal/mock/user"
 	"github.com/hizu77/avito-autumn-2025/internal/model"
 	"github.com/hizu77/avito-autumn-2025/internal/service/user"
 	"github.com/stretchr/testify/require"

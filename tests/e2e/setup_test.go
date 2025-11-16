@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -80,10 +79,7 @@ func post(t *testing.T, url string, payload any, headers map[string]string) (int
 	res, err := cli.Do(req)
 	require.NoError(t, err)
 	defer func() {
-		err = res.Body.Close()
-		if err != nil {
-			log.Println("failed to close response body")
-		}
+		_ = res.Body.Close()
 	}()
 
 	b, err := io.ReadAll(res.Body)
