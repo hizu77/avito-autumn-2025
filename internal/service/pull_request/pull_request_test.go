@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/golang/mock/gomock"
-	"github.com/hizu77/avito-autumn-2025/internal/mock/pull_request"
+	mock "github.com/hizu77/avito-autumn-2025/internal/mock/pull_request"
 	trmanager "github.com/hizu77/avito-autumn-2025/internal/mock/tr_manager"
 	"github.com/hizu77/avito-autumn-2025/internal/model"
-	"github.com/hizu77/avito-autumn-2025/internal/service/pull_request"
+	pullrequest "github.com/hizu77/avito-autumn-2025/internal/service/pull_request"
 	"github.com/stretchr/testify/require"
 )
 
@@ -63,7 +63,7 @@ func TestCreatePullRequest(t *testing.T) {
 					AuthorID: testAuthorID,
 				},
 			},
-			mock: func(teamStorage *mock.TeamStorage, prStorage *mock.PullRequestStorage) {
+			mock: func(teamStorage *mock.TeamStorage, _ *mock.PullRequestStorage) {
 				teamStorage.EXPECT().GetTeamByUserID(gomock.Any(), testAuthorID).
 					Return(model.Team{}, model.ErrTeamDoesNotExist)
 			},
@@ -696,7 +696,7 @@ func TestReassignPullRequest(t *testing.T) {
 				id:         testPRID,
 				reviewerID: testReviewerID1,
 			},
-			mock: func(teamStorage *mock.TeamStorage, prStorage *mock.PullRequestStorage) {
+			mock: func(_ *mock.TeamStorage, prStorage *mock.PullRequestStorage) {
 				mergedTime := mockTime.Add(-time.Hour)
 
 				prStorage.EXPECT().

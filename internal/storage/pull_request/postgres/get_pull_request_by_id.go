@@ -51,7 +51,7 @@ func (s *Storage) GetPullRequestByID(ctx context.Context, id string) (model.Pull
 		return model.PullRequest{}, errors.Wrap(err, "collecting rows")
 	}
 
-	pr, err := mapDbPullRequestToDomainPullRequest(dbPR)
+	pr, err := mapDBPullRequestToDomainPullRequest(dbPR)
 	if err != nil {
 		return model.PullRequest{}, errors.Wrap(err, "mapping pull request")
 	}

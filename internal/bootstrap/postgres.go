@@ -22,18 +22,20 @@ func InitPostgres(
 		return nil, errors.Wrap(err, "init postgres")
 	}
 
-	if err := closer.AddCallback(
+	err = closer.AddCallback(
 		CloserGroupConnections,
 		func() error {
 			logger.Info("closing database connection")
 			pool.Close()
 			return nil
 		},
-	); err != nil {
+	)
+	if err != nil {
 		return nil, errors.Wrap(err, "postgres callback")
 	}
 
-	if err := pool.Ping(ctx); err != nil {
+	err = pool.Ping(ctx)
+	if err != nil {
 		return nil, errors.Wrap(err, "readiness probe")
 	}
 

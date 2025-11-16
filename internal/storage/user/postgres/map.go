@@ -5,7 +5,7 @@ import (
 	"github.com/hizu77/avito-autumn-2025/internal/storage/user/dbmodel"
 )
 
-func mapDbUserToDomain(user dbmodel.User) model.User {
+func mapDBUserToDomain(user dbmodel.User) model.User {
 	return model.User{
 		ID:       user.ID,
 		Name:     user.Name,

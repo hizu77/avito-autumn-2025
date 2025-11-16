@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/render"
-	"github.com/hizu77/avito-autumn-2025/internal/api/common"
+	"github.com/hizu77/avito-autumn-2025/internal/api/httperr"
 	"github.com/hizu77/avito-autumn-2025/internal/api/user/request"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -20,7 +20,7 @@ func (h *Handler) SetActive(w http.ResponseWriter, r *http.Request) {
 			zap.Error(err),
 		)
 
-		common.WriteError(w, r, common.CodeBadRequest, "invalid json body")
+		httperr.WriteError(w, r, httperr.CodeBadRequest, "invalid json body")
 		return
 	}
 
@@ -30,7 +30,7 @@ func (h *Handler) SetActive(w http.ResponseWriter, r *http.Request) {
 			zap.Error(err),
 		)
 
-		common.WriteError(w, r, common.CodeBadRequest, err.Error())
+		httperr.WriteError(w, r, httperr.CodeBadRequest, err.Error())
 		return
 	}
 
@@ -43,7 +43,7 @@ func (h *Handler) SetActive(w http.ResponseWriter, r *http.Request) {
 		)
 
 		code := mapDomainUserErrorToCode(err)
-		common.WriteError(w, r, code)
+		httperr.WriteError(w, r, code)
 		return
 	}
 

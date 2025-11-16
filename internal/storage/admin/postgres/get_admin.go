@@ -35,7 +35,7 @@ func (s *Storage) GetAdmin(ctx context.Context, id string) (model.Admin, error) 
 		return model.Admin{}, errors.Wrap(err, "collecting rows")
 	}
 
-	mappedAdmin := mapDbAdminToDomainAdmin(dbAdmin)
+	mappedAdmin := mapDBAdminToDomainAdmin(dbAdmin)
 
 	return mappedAdmin, nil
 }

@@ -23,7 +23,8 @@ func (s *Storage) UpdatePullRequestReviewers(
 
 	tx := s.getter.DefaultTrOrDB(ctx, s.pool)
 
-	if _, err := tx.Exec(ctx, sql, args...); err != nil {
+	_, err = tx.Exec(ctx, sql, args...)
+	if err != nil {
 		return model.PullRequest{}, errors.Wrap(err, "executing delete sql")
 	}
 
@@ -45,7 +46,8 @@ func (s *Storage) UpdatePullRequestReviewers(
 		return model.PullRequest{}, errors.Wrap(err, "building insert sql")
 	}
 
-	if _, err := tx.Exec(ctx, sql, args...); err != nil {
+	_, err = tx.Exec(ctx, sql, args...)
+	if err != nil {
 		return model.PullRequest{}, errors.Wrap(err, "executing insert sql")
 	}
 

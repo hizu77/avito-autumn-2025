@@ -1,7 +1,7 @@
 package team
 
 import (
-	"github.com/hizu77/avito-autumn-2025/internal/api/common"
+	"github.com/hizu77/avito-autumn-2025/internal/api/httperr"
 	"github.com/hizu77/avito-autumn-2025/internal/api/team/request"
 	"github.com/hizu77/avito-autumn-2025/internal/api/team/response"
 	"github.com/hizu77/avito-autumn-2025/internal/model"
@@ -51,13 +51,13 @@ func mapDomainTeamToResponseSaveTeam(team model.Team) response.SaveTeam {
 	}
 }
 
-func mapDomainTeamErrorToCode(err error) common.ErrorCode {
+func mapDomainTeamErrorToCode(err error) httperr.ErrorCode {
 	switch {
 	case errors.Is(err, model.ErrTeamAlreadyExists):
-		return common.CodeTeamExists
+		return httperr.CodeTeamExists
 	case errors.Is(err, model.ErrTeamDoesNotExist):
-		return common.CodeNotFound
+		return httperr.CodeNotFound
 	default:
-		return common.CodeInternal
+		return httperr.CodeInternal
 	}
 }

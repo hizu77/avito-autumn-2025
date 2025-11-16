@@ -1,4 +1,4 @@
-package common
+package httperr
 
 type ErrorBody struct {
 	Code    ErrorCode `json:"code"`

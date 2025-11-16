@@ -39,7 +39,7 @@ func (s *Storage) UpdateActivity(ctx context.Context, id string, activity bool) 
 		return model.User{}, errors.Wrap(err, "fetching row")
 	}
 
-	mappedUser := mapDbUserToDomain(dbUser)
+	mappedUser := mapDBUserToDomain(dbUser)
 
 	return mappedUser, nil
 }

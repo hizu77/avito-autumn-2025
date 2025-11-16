@@ -40,8 +40,8 @@ func (s *Storage) GetTeamByName(ctx context.Context, name string) (model.Team, e
 		return model.Team{}, model.ErrTeamDoesNotExist
 	}
 
-	mappedUsers := collection.Map(fetched, mapDbRowToDomainUser)
-	mappedTeam := mapDbRowToDomainTeams(fetched[0])
+	mappedUsers := collection.Map(fetched, mapDBRowToDomainUser)
+	mappedTeam := mapDBRowToDomainTeams(fetched[0])
 	mappedTeam.Members = mappedUsers
 
 	return mappedTeam, nil

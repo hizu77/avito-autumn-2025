@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/render"
-	"github.com/hizu77/avito-autumn-2025/internal/api/common"
+	"github.com/hizu77/avito-autumn-2025/internal/api/httperr"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
@@ -24,7 +24,7 @@ func (h *Handler) GetUserReviewRequests(w http.ResponseWriter, r *http.Request) 
 			zap.Error(err),
 		)
 
-		common.WriteError(w, r, common.CodeBadRequest, err.Error())
+		httperr.WriteError(w, r, httperr.CodeBadRequest, err.Error())
 		return
 	}
 
@@ -37,7 +37,7 @@ func (h *Handler) GetUserReviewRequests(w http.ResponseWriter, r *http.Request) 
 		)
 
 		code := mapDomainUserErrorToCode(err)
-		common.WriteError(w, r, code)
+		httperr.WriteError(w, r, code)
 		return
 	}
 

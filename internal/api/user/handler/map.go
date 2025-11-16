@@ -1,7 +1,7 @@
 package users
 
 import (
-	"github.com/hizu77/avito-autumn-2025/internal/api/common"
+	"github.com/hizu77/avito-autumn-2025/internal/api/httperr"
 	"github.com/hizu77/avito-autumn-2025/internal/api/user/response"
 	"github.com/hizu77/avito-autumn-2025/internal/model"
 	"github.com/hizu77/avito-autumn-2025/pkg/utils/collection"
@@ -46,11 +46,11 @@ func mapDomainPullRequestsToResponseGetUserReviewRequests(
 	}
 }
 
-func mapDomainUserErrorToCode(err error) common.ErrorCode {
+func mapDomainUserErrorToCode(err error) httperr.ErrorCode {
 	switch {
 	case errors.Is(err, model.ErrUserDoesNotExist):
-		return common.CodeNotFound
+		return httperr.CodeNotFound
 	default:
-		return common.CodeInternal
+		return httperr.CodeInternal
 	}
 }

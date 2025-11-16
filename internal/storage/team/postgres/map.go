@@ -5,7 +5,7 @@ import (
 	"github.com/hizu77/avito-autumn-2025/internal/storage/team/dbmodel"
 )
 
-func mapDbRowToDomainUser(row dbmodel.Row) model.User {
+func mapDBRowToDomainUser(row dbmodel.Row) model.User {
 	return model.User{
 		ID:       row.UID,
 		Name:     row.UName,
@@ -14,7 +14,7 @@ func mapDbRowToDomainUser(row dbmodel.Row) model.User {
 	}
 }
 
-func mapDbRowToDomainTeams(row dbmodel.Row) model.Team {
+func mapDBRowToDomainTeams(row dbmodel.Row) model.Team {
 	return model.Team{
 		Name: row.TName,
 	}

@@ -52,7 +52,7 @@ func (s *Storage) GetPullRequestsByReviewer(ctx context.Context, id string) ([]m
 		return []model.PullRequest{}, nil
 	}
 
-	mappedPullRequests, err := collection.MapWithError(fetched, mapDbPullRequestToDomainPullRequest)
+	mappedPullRequests, err := collection.MapWithError(fetched, mapDBPullRequestToDomainPullRequest)
 	if err != nil {
 		return nil, errors.Wrap(err, "mapping pull requests")
 	}

@@ -27,10 +27,11 @@ func (s *Service) LoginAdmin(
 		return "", errors.Wrap(err, "getting admin")
 	}
 
-	if err := bcrypt.CompareHashAndPassword(
+	err = bcrypt.CompareHashAndPassword(
 		[]byte(admin.PasswordHash),
 		[]byte(password),
-	); err != nil {
+	)
+	if err != nil {
 		return "", model.ErrInvalidAdminPassword
 	}
 

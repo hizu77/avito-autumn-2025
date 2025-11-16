@@ -2,7 +2,7 @@ package admin
 
 import (
 	"github.com/hizu77/avito-autumn-2025/internal/api/admin/response"
-	"github.com/hizu77/avito-autumn-2025/internal/api/common"
+	"github.com/hizu77/avito-autumn-2025/internal/api/httperr"
 	"github.com/hizu77/avito-autumn-2025/internal/model"
 	"github.com/pkg/errors"
 )
@@ -19,14 +19,14 @@ func mapDomainAdminToResponseRegisterAdmin(admin model.Admin) response.RegisterA
 	}
 }
 
-func mapDomainAdminErrorToCode(err error) common.ErrorCode {
+func mapDomainAdminErrorToCode(err error) httperr.ErrorCode {
 	switch {
 	case errors.Is(err, model.ErrAdminAlreadyExists):
-		return common.CodeAdminExists
+		return httperr.CodeAdminExists
 	case errors.Is(err, model.ErrInvalidAdminPassword),
 		errors.Is(err, model.ErrAdminDoesNotExist):
-		return common.CodeInvalidCredentials
+		return httperr.CodeInvalidCredentials
 	default:
-		return common.CodeInternal
+		return httperr.CodeInternal
 	}
 }

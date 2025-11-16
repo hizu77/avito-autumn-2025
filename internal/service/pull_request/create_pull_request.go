@@ -44,8 +44,8 @@ func (s *Service) CreatePullRequest(ctx context.Context, request model.PullReque
 
 	var createdPullRequest model.PullRequest
 	err = s.trManager.Do(ctx, func(ctx context.Context) error {
-		inserted, err := s.pullRequestStorage.InsertPullRequest(ctx, pullRequest)
-		if err != nil {
+		inserted, txErr := s.pullRequestStorage.InsertPullRequest(ctx, pullRequest)
+		if txErr != nil {
 			return errors.Wrap(err, "insert pull request")
 		}
 

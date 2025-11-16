@@ -44,7 +44,7 @@ func (s *Service) ReassignPullRequest(
 	validNewReviewers := collection.Filter(
 		team.Members,
 		func(user model.User) bool {
-			if !(user.IsActive && user.ID != reviewerID) {
+			if !user.IsActive || user.ID == reviewerID {
 				return false
 			}
 
@@ -78,8 +78,8 @@ func (s *Service) ReassignPullRequest(
 
 	var updatedPr model.PullRequest
 	err = s.trManager.Do(ctx, func(ctx context.Context) error {
-		updated, err := s.pullRequestStorage.UpdatePullRequestReviewers(ctx, pr)
-		if err != nil {
+		updated, txErr := s.pullRequestStorage.UpdatePullRequestReviewers(ctx, pr)
+		if txErr != nil {
 			return errors.Wrap(err, "reassigning pull request")
 		}
 

@@ -3,7 +3,7 @@ package pullrequest
 import (
 	"time"
 
-	"github.com/hizu77/avito-autumn-2025/internal/api/common"
+	"github.com/hizu77/avito-autumn-2025/internal/api/httperr"
 	"github.com/hizu77/avito-autumn-2025/internal/api/pull_requests/request"
 	"github.com/hizu77/avito-autumn-2025/internal/api/pull_requests/response"
 	"github.com/hizu77/avito-autumn-2025/internal/model"
@@ -75,23 +75,23 @@ func mapDomainPullRequestToResponseReassignPullRequest(
 	}
 }
 
-func mapDomainPullRequestErrorToCode(err error) common.ErrorCode {
+func mapDomainPullRequestErrorToCode(err error) httperr.ErrorCode {
 	switch {
 	case errors.Is(err, model.ErrPullRequestIsMerged):
-		return common.CodePrMerged
+		return httperr.CodePrMerged
 	case errors.Is(err, model.ErrPullRequestAlreadyExists):
-		return common.CodePrExists
+		return httperr.CodePrExists
 	case errors.Is(err, model.ErrPullRequestDoesNotExist):
-		return common.CodeNotFound
+		return httperr.CodeNotFound
 	case errors.Is(err, model.ErrTeamDoesNotExist):
-		return common.CodeNotFound
+		return httperr.CodeNotFound
 	case errors.Is(err, model.ErrUserDoesNotExist):
-		return common.CodeNotFound
+		return httperr.CodeNotFound
 	case errors.Is(err, model.ErrReviewerNotAssign):
-		return common.CodeNotAssigned
+		return httperr.CodeNotAssigned
 	case errors.Is(err, model.ErrNoCandidate):
-		return common.CodeNoCandidate
+		return httperr.CodeNoCandidate
 	default:
-		return common.CodeInternal
+		return httperr.CodeInternal
 	}
 }

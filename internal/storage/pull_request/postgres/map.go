@@ -6,7 +6,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func mapDbPullRequestToDomainPullRequest(pr dbmodel.PullRequest) (model.PullRequest, error) {
+func mapDBPullRequestToDomainPullRequest(pr dbmodel.PullRequest) (model.PullRequest, error) {
 	mappedStatus, err := model.ParseStatus(pr.Status)
 	if err != nil {
 		return model.PullRequest{}, errors.Wrap(err, "mapping status")
