@@ -64,3 +64,42 @@ http://localhost:8080
 
 3. Также при выборе ревьюера для переназначения решил не включать автора пул реквеста 
 в список возможных кандидатов. Так как мне показалось это странным, что автор может ревьюить сам себя
+
+# Реализация
+1. Для изменения актиности пользователя был необходим админский токен, поэтому также были реализованы эндпоинты
+для логина и регистрации администраторов.
+
+Логин должен иметь тело запроса, а отдает jwt токен. Пример эндпоинта с телом:
+```
+POST http://localhost:8080/admins/login
+{
+  "id" : "admin",
+  "password" : "admin"
+}
+```
+
+Пример респонса
+
+```
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbl9pZCI6ImFkbWluIiwiZXhwIjoxNzYzMzMwODQzfQ._EK_3P74LFS2vW6gmaMMwBRAr1SgxIRrXfBJs2l2zJ0"
+}
+```
+
+Регистрация должна иметь тело запроса. Пример эндпоинта с телом:
+```
+POST http://localhost:8080/admins/register
+{
+  "id" : "misha",
+  "password" : "misha"
+}
+
+```
+
+При этом регистрировать админов могут только другие админы, то есть надо передавать еще и токен в хэдеры, где ключ
+это Authorization, а значение Bearer + токен.
+Пример значения: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbl9pZCI6ImFkbWluIiwiZXhwIjoxNzYzMzMwODQzfQ._EK_3P74LFS2vW6gmaMMwBRAr1SgxIRrXfBJs2l2zJ0
+
+2. Также нужно передавать токен в хэдеры еще и в эндпоинте /users/setIsActive.
+3. При старте имеется дефолтный админ с айди admin и паролем admin. При этом вы можете задать
+дефолтные параметры админа в .env. Пример есть в .env.example.
