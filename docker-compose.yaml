@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-app}
+      POSTGRES_DB: app
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-app} -d app" ]
+      interval: 15s
+      timeout: 15s
+      retries: 15
+      start_period: 15s
+
+  flyway:
+    image: flyway/flyway:latest
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./db/migrations:/flyway/sql:ro
+    environment:
+      FLYWAY_URL: jdbc:postgresql://postgres:5432/app
+      FLYWAY_USER: ${POSTGRES_USER:-app}
+      FLYWAY_PASSWORD: ${POSTGRES_PASSWORD:-app}
+    command: -connectRetries=60 migrate
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    depends_on:
+      flyway:
+        condition: service_completed_successfully
+    environment:
+      HTTP_HOST: 0.0.0.0
+      HTTP_PORT: 8080
+      ADMIN_SECRET: ${ADMIN_SECRET:-devsecret}
+      ADMIN_ID: ${ADMIN_ID:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-app}
+      POSTGRES_DB: app
+      POSTGRES_URL: postgres://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-app}@postgres:5432/app?sslmode=disable
+    ports:
+      - "8080:8080"
+    restart: unless-stopped

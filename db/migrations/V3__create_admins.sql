@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS admins (
+    id TEXT PRIMARY KEY,
+    password TEXT NOT NULL
+);
