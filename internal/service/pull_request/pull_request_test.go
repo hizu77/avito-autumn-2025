@@ -468,7 +468,7 @@ func TestReassignPullRequest(t *testing.T) {
 		name    string
 		args    args
 		mock    func(teamStorage *mock.TeamStorage, prStorage *mock.PullRequestStorage)
-		want    model.PullRequest
+		want    model.ReassignedPullRequest
 		wantErr error
 	}{
 		{
@@ -479,12 +479,34 @@ func TestReassignPullRequest(t *testing.T) {
 				reviewerID: testReviewerID1,
 			},
 			mock: func(_ *mock.TeamStorage, prStorage *mock.PullRequestStorage) {
-				prStorage.EXPECT().
-					GetPullRequestByID(gomock.Any(), testPRID).
+				prStorage.EXPECT().GetPullRequestByID(gomock.Any(), testPRID).
 					Return(model.PullRequest{}, model.ErrPullRequestDoesNotExist)
 			},
-			want:    model.PullRequest{},
+			want:    model.ReassignedPullRequest{},
 			wantErr: model.ErrPullRequestDoesNotExist,
+		},
+		{
+			name: "pull request is merged - cannot reassign",
+			args: args{
+				ctx:        context.Background(),
+				id:         testPRID,
+				reviewerID: testReviewerID1,
+			},
+			mock: func(_ *mock.TeamStorage, prStorage *mock.PullRequestStorage) {
+				mergedTime := mockTime.Add(-time.Hour)
+				prStorage.EXPECT().GetPullRequestByID(gomock.Any(), testPRID).
+					Return(model.PullRequest{
+						ID:           testPRID,
+						Name:         testPRName,
+						AuthorID:     testAuthorID,
+						Status:       model.StatusMerged,
+						ReviewersIDs: []string{testReviewerID1},
+						CreatedAt:    &mockTime,
+						MergedAt:     &mergedTime,
+					}, nil)
+			},
+			want:    model.ReassignedPullRequest{},
+			wantErr: model.ErrPullRequestIsMerged,
 		},
 		{
 			name: "reviewer not assigned",
@@ -494,8 +516,7 @@ func TestReassignPullRequest(t *testing.T) {
 				reviewerID: testUserID1,
 			},
 			mock: func(_ *mock.TeamStorage, prStorage *mock.PullRequestStorage) {
-				prStorage.EXPECT().
-					GetPullRequestByID(gomock.Any(), testPRID).
+				prStorage.EXPECT().GetPullRequestByID(gomock.Any(), testPRID).
 					Return(model.PullRequest{
 						ID:           testPRID,
 						Name:         testPRName,
@@ -505,19 +526,18 @@ func TestReassignPullRequest(t *testing.T) {
 						CreatedAt:    &mockTime,
 					}, nil)
 			},
-			want:    model.PullRequest{},
+			want:    model.ReassignedPullRequest{},
 			wantErr: model.ErrReviewerNotAssign,
 		},
 		{
-			name: "no candidate to reassign - team has only the old reviewer",
+			name: "no candidate to reassign",
 			args: args{
 				ctx:        context.Background(),
 				id:         testPRID,
 				reviewerID: testReviewerID1,
 			},
 			mock: func(teamStorage *mock.TeamStorage, prStorage *mock.PullRequestStorage) {
-				prStorage.EXPECT().
-					GetPullRequestByID(gomock.Any(), testPRID).
+				prStorage.EXPECT().GetPullRequestByID(gomock.Any(), testPRID).
 					Return(model.PullRequest{
 						ID:           testPRID,
 						Name:         testPRName,
@@ -526,9 +546,7 @@ func TestReassignPullRequest(t *testing.T) {
 						ReviewersIDs: []string{testReviewerID1},
 						CreatedAt:    &mockTime,
 					}, nil)
-
-				teamStorage.EXPECT().
-					GetTeamByUserID(gomock.Any(), testReviewerID1).
+				teamStorage.EXPECT().GetTeamByUserID(gomock.Any(), testReviewerID1).
 					Return(model.Team{
 						Name: testTeamName,
 						Members: []model.User{
@@ -541,8 +559,67 @@ func TestReassignPullRequest(t *testing.T) {
 						},
 					}, nil)
 			},
-			want:    model.PullRequest{},
+			want:    model.ReassignedPullRequest{},
 			wantErr: model.ErrNoCandidate,
+		},
+		{
+			name: "success - reassign reviewer",
+			args: args{
+				ctx:        context.Background(),
+				id:         testPRID,
+				reviewerID: testReviewerID1,
+			},
+			mock: func(teamStorage *mock.TeamStorage, prStorage *mock.PullRequestStorage) {
+				prStorage.EXPECT().GetPullRequestByID(gomock.Any(), testPRID).
+					Return(model.PullRequest{
+						ID:           testPRID,
+						Name:         testPRName,
+						AuthorID:     testAuthorID,
+						Status:       model.StatusOpen,
+						ReviewersIDs: []string{testReviewerID1, testReviewerID2},
+						CreatedAt:    &mockTime,
+					}, nil)
+
+				teamStorage.EXPECT().GetTeamByUserID(gomock.Any(), testReviewerID1).
+					Return(model.Team{
+						Name: testTeamName,
+						Members: []model.User{
+							{
+								ID:       testReviewerID1,
+								Name:     "Reviewer 1",
+								TeamName: testTeamName,
+								IsActive: true,
+							},
+							{
+								ID:       testUserID1,
+								Name:     "Active User",
+								TeamName: testTeamName,
+								IsActive: true,
+							},
+							{
+								ID:       testUserID2,
+								Name:     "Inactive User",
+								TeamName: testTeamName,
+								IsActive: false,
+							},
+						},
+					}, nil)
+
+				prStorage.EXPECT().UpdatePullRequestReviewers(gomock.Any(), gomock.Any()).
+					DoAndReturn(func(_ context.Context, pr model.PullRequest) (model.PullRequest, error) {
+						return pr, nil
+					})
+			},
+			want: model.ReassignedPullRequest{
+				ID:           testPRID,
+				Name:         testPRName,
+				AuthorID:     testAuthorID,
+				Status:       model.StatusOpen,
+				ReviewersIDs: []string{testUserID1, testReviewerID2},
+				CreatedAt:    &mockTime,
+				ReassignedBy: testUserID1,
+			},
+			wantErr: nil,
 		},
 		{
 			name: "all team members already reviewers - no candidate",
@@ -552,8 +629,7 @@ func TestReassignPullRequest(t *testing.T) {
 				reviewerID: testReviewerID1,
 			},
 			mock: func(teamStorage *mock.TeamStorage, prStorage *mock.PullRequestStorage) {
-				prStorage.EXPECT().
-					GetPullRequestByID(gomock.Any(), testPRID).
+				prStorage.EXPECT().GetPullRequestByID(gomock.Any(), testPRID).
 					Return(model.PullRequest{
 						ID:           testPRID,
 						Name:         testPRName,
@@ -562,9 +638,7 @@ func TestReassignPullRequest(t *testing.T) {
 						ReviewersIDs: []string{testReviewerID1, testUserID1},
 						CreatedAt:    &mockTime,
 					}, nil)
-
-				teamStorage.EXPECT().
-					GetTeamByUserID(gomock.Any(), testReviewerID1).
+				teamStorage.EXPECT().GetTeamByUserID(gomock.Any(), testReviewerID1).
 					Return(model.Team{
 						Name: testTeamName,
 						Members: []model.User{
@@ -583,19 +657,18 @@ func TestReassignPullRequest(t *testing.T) {
 						},
 					}, nil)
 			},
-			want:    model.PullRequest{},
+			want:    model.ReassignedPullRequest{},
 			wantErr: model.ErrNoCandidate,
 		},
 		{
-			name: "inactive users are excluded - no candidate",
+			name: "inactive users excluded from candidates",
 			args: args{
 				ctx:        context.Background(),
 				id:         testPRID,
 				reviewerID: testReviewerID1,
 			},
 			mock: func(teamStorage *mock.TeamStorage, prStorage *mock.PullRequestStorage) {
-				prStorage.EXPECT().
-					GetPullRequestByID(gomock.Any(), testPRID).
+				prStorage.EXPECT().GetPullRequestByID(gomock.Any(), testPRID).
 					Return(model.PullRequest{
 						ID:           testPRID,
 						Name:         testPRName,
@@ -604,9 +677,7 @@ func TestReassignPullRequest(t *testing.T) {
 						ReviewersIDs: []string{testReviewerID1},
 						CreatedAt:    &mockTime,
 					}, nil)
-
-				teamStorage.EXPECT().
-					GetTeamByUserID(gomock.Any(), testReviewerID1).
+				teamStorage.EXPECT().GetTeamByUserID(gomock.Any(), testReviewerID1).
 					Return(model.Team{
 						Name: testTeamName,
 						Members: []model.User{
@@ -625,94 +696,8 @@ func TestReassignPullRequest(t *testing.T) {
 						},
 					}, nil)
 			},
-			want:    model.PullRequest{},
+			want:    model.ReassignedPullRequest{},
 			wantErr: model.ErrNoCandidate,
-		},
-		{
-			name: "success - reassign reviewer to the only valid active teammate",
-			args: args{
-				ctx:        context.Background(),
-				id:         testPRID,
-				reviewerID: testReviewerID1,
-			},
-			mock: func(teamStorage *mock.TeamStorage, prStorage *mock.PullRequestStorage) {
-				prStorage.EXPECT().
-					GetPullRequestByID(gomock.Any(), testPRID).
-					Return(model.PullRequest{
-						ID:           testPRID,
-						Name:         testPRName,
-						AuthorID:     testAuthorID,
-						Status:       model.StatusOpen,
-						ReviewersIDs: []string{testReviewerID1, testReviewerID2},
-						CreatedAt:    &mockTime,
-					}, nil)
-
-				teamStorage.EXPECT().
-					GetTeamByUserID(gomock.Any(), testReviewerID1).
-					Return(model.Team{
-						Name: testTeamName,
-						Members: []model.User{
-							{
-								ID:       testReviewerID1,
-								Name:     "Reviewer 1",
-								TeamName: testTeamName,
-								IsActive: true,
-							},
-							{
-								ID:       testUserID1,
-								Name:     "Active User",
-								TeamName: testTeamName,
-								IsActive: true,
-							},
-							{
-								ID:       testUserID2,
-								Name:     "Inactive",
-								TeamName: testTeamName,
-								IsActive: false,
-							},
-						},
-					}, nil)
-
-				prStorage.EXPECT().
-					UpdatePullRequestReviewers(gomock.Any(), gomock.Any()).
-					DoAndReturn(func(_ context.Context, pr model.PullRequest) (model.PullRequest, error) {
-						return pr, nil
-					})
-			},
-			want: model.PullRequest{
-				ID:           testPRID,
-				Name:         testPRName,
-				AuthorID:     testAuthorID,
-				Status:       model.StatusOpen,
-				ReviewersIDs: []string{testUserID1, testReviewerID2},
-				CreatedAt:    &mockTime,
-			},
-			wantErr: nil,
-		},
-		{
-			name: "pull request is merged - cannot reassign",
-			args: args{
-				ctx:        context.Background(),
-				id:         testPRID,
-				reviewerID: testReviewerID1,
-			},
-			mock: func(_ *mock.TeamStorage, prStorage *mock.PullRequestStorage) {
-				mergedTime := mockTime.Add(-time.Hour)
-
-				prStorage.EXPECT().
-					GetPullRequestByID(gomock.Any(), testPRID).
-					Return(model.PullRequest{
-						ID:           testPRID,
-						Name:         testPRName,
-						AuthorID:     testAuthorID,
-						Status:       model.StatusMerged,
-						ReviewersIDs: []string{testReviewerID1},
-						CreatedAt:    &mockTime,
-						MergedAt:     &mergedTime,
-					}, nil)
-			},
-			want:    model.PullRequest{},
-			wantErr: model.ErrPullRequestIsMerged,
 		},
 	}
 
@@ -726,7 +711,17 @@ func TestReassignPullRequest(t *testing.T) {
 			got, err := service.ReassignPullRequest(tt.args.ctx, tt.args.id, tt.args.reviewerID)
 
 			require.ErrorIs(t, err, tt.wantErr)
-			require.Equal(t, tt.want, got)
+
+			if tt.wantErr == nil {
+				require.Equal(t, tt.want.ID, got.ID)
+				require.Equal(t, tt.want.Name, got.Name)
+				require.Equal(t, tt.want.AuthorID, got.AuthorID)
+				require.Equal(t, tt.want.Status, got.Status)
+				require.ElementsMatch(t, tt.want.ReviewersIDs, got.ReviewersIDs)
+				require.Equal(t, tt.want.ReassignedBy, got.ReassignedBy)
+			} else {
+				require.Equal(t, model.ReassignedPullRequest{}, got)
+			}
 		})
 	}
 }

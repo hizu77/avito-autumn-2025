@@ -63,15 +63,26 @@ func mapDomainPullRequestToResponseMergePullRequest(
 	}
 }
 
-func mapDomainPullRequestToResponseReassignPullRequest(
-	req model.PullRequest,
-	replacedBy string,
+func mapDomainReassignedPullRequestToResponsePullRequest(
+	req model.ReassignedPullRequest,
+) response.PullRequest {
+	return response.PullRequest{
+		ID:        req.ID,
+		Name:      req.Name,
+		AuthorID:  req.AuthorID,
+		Status:    req.Status,
+		Reviewers: req.ReviewersIDs,
+	}
+}
+
+func mapDomainReassignedPullRequestToResponseReassignPullRequest(
+	req model.ReassignedPullRequest,
 ) response.ReassignPullRequest {
-	mappedPullRequest := mapDomainPullRequestToResponsePullRequest(req)
+	mappedPullRequest := mapDomainReassignedPullRequestToResponsePullRequest(req)
 
 	return response.ReassignPullRequest{
 		PullRequest: mappedPullRequest,
-		ReplacedBy:  replacedBy,
+		ReplacedBy:  req.ReassignedBy,
 	}
 }
 

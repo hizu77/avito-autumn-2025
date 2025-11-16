@@ -10,7 +10,7 @@ import (
 type service interface {
 	CreatePullRequest(ctx context.Context, request model.PullRequest) (model.PullRequest, error)
 	MergePullRequest(ctx context.Context, id string) (model.PullRequest, error)
-	ReassignPullRequest(ctx context.Context, id string, reviewerID string) (model.PullRequest, error)
+	ReassignPullRequest(ctx context.Context, id string, reviewerID string) (model.ReassignedPullRequest, error)
 }
 
 type Handler struct {

@@ -1,6 +1,6 @@
 package model
 
-import "github.com/pkg/errors"
+import "errors"
 
 var (
 	ErrUserDoesNotExist = errors.New("user does not exist")

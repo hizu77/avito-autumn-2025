@@ -16,11 +16,11 @@ func (s *Storage) GetTeamByName(ctx context.Context, name string) (model.Team, e
 		Expr(`
         	SELECT
             	t.name 		AS team_name,
-            	u.name   		AS user_id,
+            	u.id        AS user_id,
             	u.name      AS user_name,
             	u.is_active AS user_is_active
         	FROM teams t
-        	JOIN users u ON t.name = u.team_name
+        	LEFT JOIN users u ON t.name = u.team_name
         	WHERE t.name = $1`, name).
 		ToSql()
 	if err != nil {
@@ -40,7 +40,13 @@ func (s *Storage) GetTeamByName(ctx context.Context, name string) (model.Team, e
 		return model.Team{}, model.ErrTeamDoesNotExist
 	}
 
-	mappedUsers := collection.Map(fetched, mapDBRowToDomainUser)
+	notNilUsers := collection.Filter(
+		fetched,
+		func(row dbmodel.Row) bool {
+			return row.UID != nil
+		},
+	)
+	mappedUsers := collection.Map(notNilUsers, mapDBRowToDomainUser)
 	mappedTeam := mapDBRowToDomainTeams(fetched[0])
 	mappedTeam.Members = mappedUsers
 

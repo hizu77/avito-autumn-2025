@@ -9,8 +9,12 @@ import (
 )
 
 func (s *Service) SaveTeam(ctx context.Context, team model.Team) (model.Team, error) {
+	uniqueMembers := collection.Unique(team.Members, func(member model.User) string {
+		return member.ID
+	})
+
 	usersWithTeam := collection.Map(
-		team.Members,
+		uniqueMembers,
 		func(user model.User) model.User {
 			return model.User{
 				ID:       user.ID,

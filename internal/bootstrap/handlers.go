@@ -10,6 +10,7 @@ import (
 	"github.com/hizu77/avito-autumn-2025/config"
 	adminhandler "github.com/hizu77/avito-autumn-2025/internal/api/admin/handler"
 	middleware "github.com/hizu77/avito-autumn-2025/internal/api/admin/middleware"
+	"github.com/hizu77/avito-autumn-2025/internal/api/health"
 	pullrequesthandler "github.com/hizu77/avito-autumn-2025/internal/api/pull_requests/handler"
 	teamhandler "github.com/hizu77/avito-autumn-2025/internal/api/team/handler"
 	userhandler "github.com/hizu77/avito-autumn-2025/internal/api/user/handler"
@@ -95,6 +96,8 @@ func InitHandlers(
 		r.Post("/merge", pullRequestHandler.MergePullRequest)
 		r.Post("/reassign", pullRequestHandler.ReassignPullRequest)
 	})
+
+	app.mux.Get("/health", health.Liveness)
 
 	return nil
 }

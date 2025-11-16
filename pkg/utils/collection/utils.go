@@ -62,3 +62,17 @@ func Keys[T comparable, U any](items map[T]U) []T {
 
 	return result
 }
+
+func Unique[T any, K comparable](s []T, key func(T) K) []T {
+	seen := make(map[K]struct{}, len(s))
+	result := make([]T, 0, len(s))
+	for _, v := range s {
+		k := key(v)
+		if _, ok := seen[k]; ok {
+			continue
+		}
+		seen[k] = struct{}{}
+		result = append(result, v)
+	}
+	return result
+}

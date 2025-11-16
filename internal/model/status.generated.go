@@ -6,16 +6,15 @@
 package model
 
 import (
+	"errors"
 	"fmt"
-
-	"github.com/pkg/errors"
 )
 
 const (
-	// StatusOpen is a Status of type open.
-	StatusOpen Status = "open"
-	// StatusMerged is a Status of type merged.
-	StatusMerged Status = "merged"
+	// StatusOpen is a Status of type Open.
+	StatusOpen Status = "OPEN"
+	// StatusMerged is a Status of type Merged.
+	StatusMerged Status = "MERGED"
 )
 
 var ErrInvalidStatus = errors.New("not a valid Status")
@@ -33,8 +32,8 @@ func (x Status) IsValid() bool {
 }
 
 var _StatusValue = map[string]Status{
-	"open":   StatusOpen,
-	"merged": StatusMerged,
+	"OPEN":   StatusOpen,
+	"MERGED": StatusMerged,
 }
 
 // ParseStatus attempts to convert a string to a Status.

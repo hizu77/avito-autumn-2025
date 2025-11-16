@@ -3,5 +3,5 @@
 package model
 
 // Status is a PR status ("open" or "merged").
-// ENUM(open, merged)
+// ENUM(Open=OPEN, Merged=MERGED)
 type Status string

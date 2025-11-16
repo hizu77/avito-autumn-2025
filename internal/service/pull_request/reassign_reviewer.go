@@ -17,23 +17,23 @@ func (s *Service) ReassignPullRequest(
 	ctx context.Context,
 	id string,
 	reviewerID string,
-) (model.PullRequest, error) {
+) (model.ReassignedPullRequest, error) {
 	pr, err := s.pullRequestStorage.GetPullRequestByID(ctx, id)
 	if err != nil {
-		return model.PullRequest{}, errors.Wrap(err, "getting pull request")
+		return model.ReassignedPullRequest{}, errors.Wrap(err, "getting pull request")
 	}
 
 	if pr.Status == model.StatusMerged {
-		return model.PullRequest{}, model.ErrPullRequestIsMerged
+		return model.ReassignedPullRequest{}, model.ErrPullRequestIsMerged
 	}
 
 	if !slices.Contains(pr.ReviewersIDs, reviewerID) {
-		return model.PullRequest{}, model.ErrReviewerNotAssign
+		return model.ReassignedPullRequest{}, model.ErrReviewerNotAssign
 	}
 
 	team, err := s.teamStorage.GetTeamByUserID(ctx, reviewerID)
 	if err != nil {
-		return model.PullRequest{}, errors.Wrap(err, "getting team")
+		return model.ReassignedPullRequest{}, errors.Wrap(err, "getting team")
 	}
 
 	currentReviewers := make(map[string]struct{}, len(pr.ReviewersIDs))
@@ -44,7 +44,7 @@ func (s *Service) ReassignPullRequest(
 	validNewReviewers := collection.Filter(
 		team.Members,
 		func(user model.User) bool {
-			if !user.IsActive || user.ID == reviewerID {
+			if !user.IsActive || user.ID == reviewerID || user.ID == pr.AuthorID {
 				return false
 			}
 
@@ -61,10 +61,10 @@ func (s *Service) ReassignPullRequest(
 		reassignReviewersCount,
 	)
 	if err != nil {
-		return model.PullRequest{}, errors.Wrap(err, "selecting new reviewer")
+		return model.ReassignedPullRequest{}, errors.Wrap(err, "selecting new reviewer")
 	}
 	if len(selectedReviewers) == 0 {
-		return model.PullRequest{}, model.ErrNoCandidate
+		return model.ReassignedPullRequest{}, model.ErrNoCandidate
 	}
 
 	newReviewerID := selectedReviewers[0]
@@ -80,7 +80,7 @@ func (s *Service) ReassignPullRequest(
 	err = s.trManager.Do(ctx, func(ctx context.Context) error {
 		updated, txErr := s.pullRequestStorage.UpdatePullRequestReviewers(ctx, pr)
 		if txErr != nil {
-			return errors.Wrap(err, "reassigning pull request")
+			return errors.Wrap(txErr, "reassigning pull request")
 		}
 
 		updatedPr = updated
@@ -88,8 +88,19 @@ func (s *Service) ReassignPullRequest(
 		return nil
 	})
 	if err != nil {
-		return model.PullRequest{}, errors.Wrap(err, "reassigning pull request in tx")
+		return model.ReassignedPullRequest{}, errors.Wrap(err, "reassigning pull request in tx")
 	}
 
-	return updatedPr, nil
+	reassignedPullRequest := model.ReassignedPullRequest{
+		ID:           updatedPr.ID,
+		Name:         updatedPr.Name,
+		AuthorID:     updatedPr.AuthorID,
+		Status:       updatedPr.Status,
+		ReviewersIDs: updatedPr.ReviewersIDs,
+		CreatedAt:    updatedPr.CreatedAt,
+		MergedAt:     updatedPr.MergedAt,
+		ReassignedBy: newReviewerID,
+	}
+
+	return reassignedPullRequest, nil
 }
