@@ -7,10 +7,10 @@ import (
 
 func mapDBRowToDomainUser(row dbmodel.Row) model.User {
 	return model.User{
-		ID:       row.UID,
-		Name:     row.UName,
+		ID:       *row.UID,
+		Name:     *row.UName,
 		TeamName: row.TName,
-		IsActive: row.UIsActive,
+		IsActive: *row.UIsActive,
 	}
 }
 

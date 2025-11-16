@@ -1,6 +1,6 @@
 package model
 
-import "github.com/pkg/errors"
+import "errors"
 
 var (
 	ErrTeamAlreadyExists = errors.New("team already exists")

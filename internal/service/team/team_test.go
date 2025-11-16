@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	mock "github.com/hizu77/avito-autumn-2025/internal/mock/team"
+	"github.com/hizu77/avito-autumn-2025/internal/mock/team"
 	trmanager "github.com/hizu77/avito-autumn-2025/internal/mock/tr_manager"
 	"github.com/hizu77/avito-autumn-2025/internal/model"
 	"github.com/hizu77/avito-autumn-2025/internal/service/team"
@@ -151,7 +151,7 @@ func TestSaveTeam(t *testing.T) {
 					},
 				},
 			},
-			mock: func(teamStorage *mock.TeamStorage, _ *mock.UserStorage) {
+			mock: func(teamStorage *mock.TeamStorage, userStorage *mock.UserStorage) {
 				teamStorage.EXPECT().SaveTeam(gomock.Any(), gomock.Any()).
 					Return(model.Team{}, model.ErrTeamAlreadyExists)
 			},

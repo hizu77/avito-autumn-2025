@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	mock "github.com/hizu77/avito-autumn-2025/internal/mock/admin"
+	"github.com/hizu77/avito-autumn-2025/internal/mock/admin"
 	"github.com/hizu77/avito-autumn-2025/internal/model"
 	"github.com/hizu77/avito-autumn-2025/internal/service/admin"
 	"github.com/stretchr/testify/require"

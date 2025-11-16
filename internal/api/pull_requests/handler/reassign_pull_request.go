@@ -51,9 +51,8 @@ func (h *Handler) ReassignPullRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	mappedResponse := mapDomainPullRequestToResponseReassignPullRequest(
+	mappedResponse := mapDomainReassignedPullRequestToResponseReassignPullRequest(
 		pullRequest,
-		reassignPullRequestRequest.OldReviewerID,
 	)
 
 	render.Status(r, http.StatusOK)

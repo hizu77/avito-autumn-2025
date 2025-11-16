@@ -5,5 +5,5 @@ CREATE TABLE IF NOT EXISTS pull_request_statuses (
 
 INSERT INTO pull_request_statuses (id, name)
 VALUES
-    (1, 'open'),
-    (2, 'merged');
+    (1, 'OPEN'),
+    (2, 'MERGED');

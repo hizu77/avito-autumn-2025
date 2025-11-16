@@ -64,5 +64,15 @@ func validateSaveTeamRequest(req request.SaveTeam) error {
 		return errors.New("members are required")
 	}
 
+	for _, member := range req.Members {
+		if member.ID == "" {
+			return errors.New("member id is required")
+		}
+
+		if member.Name == "" {
+			return errors.New("member name is required")
+		}
+	}
+
 	return nil
 }

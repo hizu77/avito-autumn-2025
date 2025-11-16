@@ -12,7 +12,7 @@ func (m *MockTrManager) Do(ctx context.Context, fn func(ctx context.Context) err
 	return fn(ctx)
 }
 
-func (m *MockTrManager) DoWithSettings(ctx context.Context, _ trm.Settings, fn func(ctx context.Context) error) error {
+func (m *MockTrManager) DoWithSettings(ctx context.Context, settings trm.Settings, fn func(ctx context.Context) error) error {
 	return fn(ctx)
 }
 

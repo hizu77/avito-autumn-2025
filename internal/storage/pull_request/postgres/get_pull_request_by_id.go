@@ -20,8 +20,12 @@ func (s *Storage) GetPullRequestByID(ctx context.Context, id string) (model.Pull
             	s.name        AS status,
             	pr.created_at AS created_at,
             	pr.merged_at  AS merged_at,
-            	COALESCE(array_agg(r.reviewer_id ORDER BY r.reviewer_id), '{}') AS reviewer_ids
-        	FROM pull_requests pr
+				COALESCE(
+  					array_agg(r.reviewer_id ORDER BY r.reviewer_id)
+    				FILTER (WHERE r.reviewer_id IS NOT NULL),
+  					'{}'
+				) AS reviewer_ids
+			FROM pull_requests pr
         	JOIN pull_request_statuses s ON s.id = pr.status_id
         	LEFT JOIN pull_request_reviewers r ON r.pull_request_id = pr.id
         	WHERE pr.id = $1

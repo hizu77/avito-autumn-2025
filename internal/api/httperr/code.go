@@ -20,13 +20,14 @@ const (
 
 func (c ErrorCode) HTTPStatus() int {
 	switch c {
-	case CodeBadRequest:
+	case CodeBadRequest, CodeTeamExists:
 		return http.StatusBadRequest
-	case CodeNotFound:
+	case CodeNotFound, CodeNotAssigned:
 		return http.StatusNotFound
 	case CodeUnauthorized, CodeInvalidCredentials:
 		return http.StatusUnauthorized
-	case CodeTeamExists, CodePrExists, CodePrMerged, CodeNotAssigned, CodeNoCandidate:
+	case CodePrExists, CodePrMerged,
+		CodeNoCandidate, CodeAdminExists:
 		return http.StatusConflict
 	default:
 		return http.StatusInternalServerError
@@ -48,7 +49,7 @@ func (c ErrorCode) DefaultMessage() string {
 	case CodePrExists:
 		return "pull request already exists"
 	case CodePrMerged:
-		return "pull request already merged"
+		return "cannot reassign on merged PR"
 	case CodeAdminExists:
 		return "admin already exists"
 	case CodeNotAssigned:
