@@ -7,6 +7,7 @@ import (
 	"github.com/hizu77/avito-autumn-2025/internal/model"
 )
 
+//go:generate mockgen -source=implementation.go -destination=../../mock/pull_request/storage.go -package=mock -mock_names teamStorage=TeamStorage,pullRequestStorage=PullRequestStorage
 type (
 	teamStorage interface {
 		GetTeamByUserID(ctx context.Context, userID string) (model.Team, error)

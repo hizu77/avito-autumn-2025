@@ -6,6 +6,7 @@ import (
 	"github.com/hizu77/avito-autumn-2025/internal/model"
 )
 
+//go:generate mockgen -source=implementation.go -destination=../../mock/user/storage.go -package=mock -mock_names userStorage=UserStorage,pullRequestStorage=PullRequestStorage
 type (
 	userStorage interface {
 		UpdateActivity(ctx context.Context, id string, activity bool) (model.User, error)

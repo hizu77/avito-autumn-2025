@@ -23,6 +23,10 @@ func (s *Service) ReassignPullRequest(
 		return model.PullRequest{}, errors.Wrap(err, "getting pull request")
 	}
 
+	if pr.Status == model.StatusMerged {
+		return model.PullRequest{}, model.ErrPullRequestIsMerged
+	}
+
 	if !slices.Contains(pr.ReviewersIDs, reviewerID) {
 		return model.PullRequest{}, model.ErrReviewerNotAssign
 	}
